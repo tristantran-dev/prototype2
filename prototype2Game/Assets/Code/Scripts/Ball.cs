@@ -7,6 +7,7 @@ public class Ball : MonoBehaviour
     [Header("References")]
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private LineRenderer lr;
+    [SerializeField] private GameObject holeSounds;
 
     [Header("Attributes")]
     [SerializeField] private float maxPower = 10f;
@@ -70,5 +71,25 @@ public class Ball : MonoBehaviour
 
         Vector2 dir = (Vector2)transform.position - pos;
         rb.velocity = Vector2.ClampMagnitude(dir * power, maxPower);
+    }
+
+    private void CheckWinState(){
+        if (inHole) return;
+        if (rb.velocity.magnitude <= maxGoalSpeed){
+          inHole = true;
+          rb.velocity = Vector2.zero;
+          gameObject.SetActive(false);
+
+          GameObject fx = Instantiate(holeSounds, transform.position, Quaternion.identity);
+          Destroy(fx, 1.5f);
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D other){
+        if(other.tag == "hole") CheckWinState();
+    }
+
+    private void OnTriggerStay2D(Collider2D other){
+        if(other.tag == "hole") CheckWinState();
     }
 }
