@@ -16,10 +16,13 @@ public class Ball : MonoBehaviour
 
     private bool isDragging;
     private bool inHole;
+    public AudioSource audiosource;
+    public AudioClip hit;
+    public AudioClip win;
     // Start is called before the first frame update
     void Start()
     {
-
+        audiosource = GetComponent<AudioSource>();
     }
     private bool IsReady() {
         return rb.velocity.magnitude <= 0.3f;
@@ -68,28 +71,39 @@ public class Ball : MonoBehaviour
         if(distance < 1f){
             return;
         }
-
+        audiosource.PlayOneShot(hit);
         Vector2 dir = (Vector2)transform.position - pos;
         rb.velocity = Vector2.ClampMagnitude(dir * power, maxPower);
     }
 
     private void CheckWinState(){
-        if (inHole) return;
-        if (rb.velocity.magnitude <= maxGoalSpeed){
+        if (inHole) { 
+            return;
+        }
+        //if (rb.velocity.magnitude <= maxGoalSpeed){
+        if (true) {
           inHole = true;
+          audiosource.PlayOneShot(win);
           rb.velocity = Vector2.zero;
           gameObject.SetActive(false);
 
           GameObject fx = Instantiate(holeSounds, transform.position, Quaternion.identity);
           Destroy(fx, 1.5f);
+          gameObject.SetActive(false);
         }
     }
 
     private void OnTriggerEnter2D(Collider2D other){
-        if(other.tag == "hole") CheckWinState();
+        if(other.tag == "hole") { 
+            //audiosource.PlayOneShot(win);
+            CheckWinState();
+        }
     }
 
     private void OnTriggerStay2D(Collider2D other){
-        if(other.tag == "hole") CheckWinState();
+        if(other.tag == "hole") {
+            //audiosource.PlayOneShot(win);
+            CheckWinState();
+        }
     }
 }
