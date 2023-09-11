@@ -15,8 +15,8 @@ public class Ball : MonoBehaviour
     //[SerializeField] private GameObject gameOverUI;
 
     [Header("Attributes")]
-    [SerializeField] private float maxPower = 6f;
-    [SerializeField] private float power = 2f;
+    [SerializeField] private float maxPower = 15f;
+    [SerializeField] private float power = 4f;
     [SerializeField] private int maxStrokes;
     [SerializeField] private float maxGoalSpeed = 4f;
 
@@ -40,7 +40,7 @@ public class Ball : MonoBehaviour
     }
 
     private bool IsReady() {
-        return rb.velocity.magnitude <= 0.3f;
+        return rb.velocity.magnitude <= 0.4f;
     }
 
     // Update is called once per frame
@@ -57,16 +57,17 @@ public class Ball : MonoBehaviour
     }
 
     private void PlayerInput(){
-        /*if (!IsReady()){
+        if (!IsReady()){
             return;
-        }*/
+        }
+
         Vector2 inputPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         float distance = Vector2.Distance(transform.position, inputPos);
 
         if ( Input.GetMouseButtonDown(0) && distance <= 0.5f){
             DragStart();
         }
-        if ( Input.GetMouseButtonDown(0) && isDragging){
+        if ( Input.GetMouseButton(0) && isDragging){
             DragChange(inputPos);
         }
         if ( Input.GetMouseButtonUp(0) && isDragging){
@@ -77,12 +78,14 @@ public class Ball : MonoBehaviour
     private void DragStart(){
       isDragging = true;
       lr.positionCount = 2;
+      Debug.Log("Draggingg");
     }
 
     private void DragChange(Vector2 pos){
         Vector2 dir = (Vector2)transform.position - pos;
-        lr.SetPosition(0,transform.position);
-        lr.SetPosition(1, (Vector2)transform.position + Vector2.ClampMagnitude((dir * power)/2, maxPower/2));
+        lr.SetPosition(1,transform.position);
+        lr.SetPosition(0, (Vector2)transform.position + Vector2.ClampMagnitude((dir * power), maxPower));
+        Debug.Log("Drag Change");
     }
 
     private void DragRelease(Vector2 pos){
