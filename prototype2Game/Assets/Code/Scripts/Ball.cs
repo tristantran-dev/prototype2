@@ -10,14 +10,20 @@ public class Ball : MonoBehaviour
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private LineRenderer lr;
     [SerializeField] private GameObject holeSounds;
+    // [SerializeField] private Text strokeui;
+    // [SerializeField] private Text levelDoneUi;
+    //[SerializeField] private GameObject gameOverUI;
 
     [Header("Attributes")]
     [SerializeField] private float maxPower = 6f;
     [SerializeField] private float power = 2f;
+    [SerializeField] private int maxStrokes;
     [SerializeField] private float maxGoalSpeed = 4f;
 
     private bool isDragging;
     private bool inHole;
+    private bool outStrokes;
+    private bool levelComplete;
     private int strokes = 0;
     public AudioSource audiosource;
     public AudioClip hit;
@@ -30,8 +36,9 @@ public class Ball : MonoBehaviour
     {
         audiosource = GetComponent<AudioSource>();
         ren = GetComponent<Renderer>();
-        text.text = "Strokes: 0";
+        text.text = "Strokes: " + strokes;
     }
+
     private bool IsReady() {
         return rb.velocity.magnitude <= 0.3f;
     }
@@ -41,6 +48,10 @@ public class Ball : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.R)) {
             SceneManager.LoadScene("level1");
+        }
+        if ( Input.GetKey("escape"))
+        {
+            Application.Quit();
         }
         PlayerInput();
     }
@@ -90,7 +101,7 @@ public class Ball : MonoBehaviour
     }
 
     private void CheckWinState(){
-        if (inHole) { 
+        if (inHole) {
             return;
         }
         //if (rb.velocity.magnitude <= maxGoalSpeed){
@@ -111,7 +122,7 @@ public class Ball : MonoBehaviour
     }
 
     private void OnTriggerEnter2D(Collider2D other){
-        if(other.tag == "hole") { 
+        if(other.tag == "hole") {
             //audiosource.PlayOneShot(win);
             CheckWinState();
         }
