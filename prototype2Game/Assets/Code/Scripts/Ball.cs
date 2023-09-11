@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class Ball : MonoBehaviour
 {
@@ -10,19 +12,25 @@ public class Ball : MonoBehaviour
     [SerializeField] private GameObject holeSounds;
 
     [Header("Attributes")]
-    [SerializeField] private float maxPower = 10f;
+    [SerializeField] private float maxPower = 6f;
     [SerializeField] private float power = 2f;
     [SerializeField] private float maxGoalSpeed = 4f;
 
     private bool isDragging;
     private bool inHole;
+    private int strokes = 0;
     public AudioSource audiosource;
     public AudioClip hit;
     public AudioClip win;
+    public AudioClip bounce;
+    public Renderer ren;
+    public Text text;
     // Start is called before the first frame update
     void Start()
     {
         audiosource = GetComponent<AudioSource>();
+        ren = GetComponent<Renderer>();
+        text.text = "Strokes: 0";
     }
     private bool IsReady() {
         return rb.velocity.magnitude <= 0.3f;
@@ -31,13 +39,16 @@ public class Ball : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.R)) {
+            SceneManager.LoadScene("level1");
+        }
         PlayerInput();
     }
 
     private void PlayerInput(){
-        if (!IsReady()){
+        /*if (!IsReady()){
             return;
-        }
+        }*/
         Vector2 inputPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         float distance = Vector2.Distance(transform.position, inputPos);
 
@@ -72,6 +83,8 @@ public class Ball : MonoBehaviour
             return;
         }
         audiosource.PlayOneShot(hit);
+        strokes++;
+        text.text = "Strokes: " + strokes;
         Vector2 dir = (Vector2)transform.position - pos;
         rb.velocity = Vector2.ClampMagnitude(dir * power, maxPower);
     }
@@ -85,12 +98,16 @@ public class Ball : MonoBehaviour
           inHole = true;
           audiosource.PlayOneShot(win);
           rb.velocity = Vector2.zero;
-          gameObject.SetActive(false);
+          //gameObject.SetActive(false);
 
           GameObject fx = Instantiate(holeSounds, transform.position, Quaternion.identity);
           Destroy(fx, 1.5f);
-          gameObject.SetActive(false);
+          ren.enabled = false;
         }
+    }
+
+    private void OnCollisionEnter2D(Collision2D coll) {
+        audiosource.PlayOneShot(bounce);
     }
 
     private void OnTriggerEnter2D(Collider2D other){
